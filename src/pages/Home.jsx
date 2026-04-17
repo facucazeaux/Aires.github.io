@@ -140,7 +140,7 @@ export default function Home() {
           <div className={`hero-media${heroIn ? " fade-up fade-up-delay-2" : ""}`}>
             <div className="hero-img-wrap">
               <img
-                src="/img-neumaticos/negocio_por_fuera.jpg"   
+                src="img-neumaticos/negocio_por_fuera.jpg"   
                 alt="Local Aires Neumáticos"
               />
             </div>
@@ -217,21 +217,21 @@ export default function Home() {
                 title: "Tractores",
                 desc: "R1, R1W, radial y diagonal para máxima tracción y durabilidad en todo tipo de suelo.",
                 tag: "Tractor",
-                img: "./img-neumaticos/tractor_home.jpg",
+                img: "img-neumaticos/tractor_home.jpg",
                 delay: 1,
               },
               {
                 title: "Cosechadoras",
                 desc: "Baja compactación y alta capacidad de carga para proteger el suelo en cosecha.",
                 tag: "Cosechadora",
-                img: "./img-neumaticos/cosechadora_home.jpg",
+                img: "img-neumaticos/cosechadora_home.jpg",
                 delay: 2,
               },
               {
                 title: "Implementos",
                 desc: "Carros, sembradoras, pulverizadoras y todo lo que rueda en el campo.",
                 tag: "Implemento",
-                img: "./img-neumaticos/sembradora_home.webp",
+                img: "img-neumaticos/sembradora_home.webp",
                 delay: 3,
               },
             ].map(({ title, desc, tag, img, delay }) => (
