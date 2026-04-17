@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: './', // Esto hace que todas las rutas sean relativas automáticamente
+  base: '/Aires.github.io/', // El nombre exacto de tu repositorio entre barras
 })
