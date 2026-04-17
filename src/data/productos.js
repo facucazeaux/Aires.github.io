@@ -12,7 +12,7 @@ export const productos = [
     indiceCarga: "161A8",
     velocidad: "A8",
     profundidad: "38 mm",
-    imagen: "img-neumaticos/Ag-Radial.jpg",
+    imagen: "./img-neumaticos/Ag-Radial.jpg",
   },
   {
     id: "TR-02",
@@ -25,7 +25,7 @@ export const productos = [
     indiceCarga: "152D",
     velocidad: "A8",
     profundidad: "42 mm",
-    imagen: "img-neumaticos/Ag-Radial.jpg",
+    imagen: "./img-neumaticos/Ag-Radial.jpg",
   },
   {
     id: "CO-01",
@@ -38,7 +38,7 @@ export const productos = [
     indiceCarga: "172A8",
     velocidad: "A8",
     profundidad: "40 mm",
-    imagen: "img-neumaticos/Agrimax_PRO_HARVEST.jpg",
+    imagen: "./img-neumaticos/Agrimax_PRO_HARVEST.jpg",
   },
   {
     id: "CO-02",
@@ -51,7 +51,7 @@ export const productos = [
     indiceCarga: "187A8",
     velocidad: "A8",
     profundidad: "44 mm",
-    imagen: "img-neumaticos/Agrimax_PRO_HARVEST.jpg",
+    imagen: "./img-neumaticos/Agrimax_PRO_HARVEST.jpg",
   },
   {
     id: "IM-01",
