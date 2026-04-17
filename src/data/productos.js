@@ -51,7 +51,7 @@ export const productos = [
     indiceCarga: "187A8",
     velocidad: "A8",
     profundidad: "44 mm",
-    imagen: "./img-neumaticos/Agrimax_PRO_HARVEST.jpg",
+    imagen: "img-neumaticos/Agrimax_PRO_HARVEST.jpg",
   },
   {
     id: "IM-01",
