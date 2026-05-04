@@ -1,0 +1,314 @@
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  
+  transition:
+    background var(--transition),
+    backdrop-filter var(--transition),
+    border-color var(--transition);
+}
+
+/* ── SCROLLED: fondo sólido ── */
+.site-header.scrolled {
+  background: rgba(10, 13, 11, 0.90);
+  backdrop-filter: blur(18px);
+  border-color: var(--border);
+}
+
+/* ════════════════════════════════════════
+   LAYOUT PREDETERMINADO (desktop, no scrolled)
+   Logo + nombre centrados — nav debajo
+   ════════════════════════════════════════ */
+.header-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22px 0 0;
+  gap: 0;
+}
+
+/* ── Brand (columna centrada) ── */
+.brand {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  margin-bottom: 14px;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+}
+
+.brand-logo img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 12px;
+  
+  transition: width 0.28s ease, height 0.28s ease, border-radius 0.28s ease;
+}
+
+.brand-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  transition: font-size 0.28s ease;
+}
+
+/* ── Nav ── */
+.nav {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.nav-list {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  list-style: none;
+  padding: 10px 28px;
+  background: rgba(10, 13, 11, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 100px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.nav-list a {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--transition);
+}
+.nav-list a:hover { color: var(--text-primary); }
+
+.nav-list a.btn {
+  color: #0a0d0b;
+  padding: 9px 20px;
+  font-size: 13px;
+}
+
+.nav-list a.btn-sm-nav {
+  font-size: 13px;
+  color: var(--green-text);
+  border: 1px solid var(--green-dim);
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  transition: background var(--transition), color var(--transition);
+}
+.nav-list a.btn-sm-nav:hover {
+  background: var(--green-glow);
+  color: var(--text-primary);
+}
+
+/* Hamburger (oculto en desktop) */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+.bar {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: transform var(--transition), opacity var(--transition);
+}
+.nav-toggle.active .bar:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.nav-toggle.active .bar:nth-child(2) { opacity: 0; }
+.nav-toggle.active .bar:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ════════════════════════════════════════
+   SCROLLED: barra compacta horizontal
+   ════════════════════════════════════════ */
+.site-header.scrolled .header-inner {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+  min-height: 62px;
+  height: 62px;
+}
+
+.site-header.scrolled .brand {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.site-header.scrolled .brand-logo img {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+}
+
+.site-header.scrolled .brand-text {
+  font-size: 1.1rem;
+}
+
+.site-header.scrolled .nav {
+  margin-bottom: 0;
+}
+
+.site-header.scrolled .nav-list {
+  background: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  gap: 24px;
+}
+
+/* ════════════════════════════════════════
+   OVER-INTRO (home, en el video, sin scroll)
+   ════════════════════════════════════════ */
+.site-header.over-intro:not(.scrolled) {
+  background: linear-gradient(to bottom, rgba(10, 13, 11, 0.52) 0%, transparent 100%);
+  border-bottom-color: transparent;
+}
+
+.site-header.over-intro:not(.scrolled) .nav-list {
+  background: rgba(10, 13, 11, 0.38);
+  border-color: transparent;
+}
+
+.site-header.over-intro:not(.scrolled) .nav-list a:not(.btn) {
+  color: rgba(255, 255, 255, 0.88);
+}
+.site-header.over-intro:not(.scrolled) .nav-list a:not(.btn):hover {
+  color: #fff;
+}
+
+.site-header.over-intro:not(.scrolled) .brand-text {
+  color: #fff;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
+}
+
+.site-header.over-intro:not(.scrolled) .btn-sm-nav {
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.07);
+}
+.site-header.over-intro:not(.scrolled) .btn-sm-nav:hover {
+  background: rgba(126, 186, 58, 0.25);
+  border-color: rgba(126, 186, 58, 0.5);
+  color: var(--text-primary) !important;
+}
+
+.site-header.over-intro:not(.scrolled) .nav-list a.btn {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* ════════════════════════════════════════
+   MOBILE (≤ 768px)
+   Siempre: fila compacta + hamburguesa
+   ════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Forzar layout de fila */
+  .header-inner,
+  .site-header.scrolled .header-inner {
+    flex-direction: row !important;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0 !important;
+    padding-bottom: 0;
+    min-height: 64px;
+    height: 64px;
+  }
+
+  /* Brand compacta horizontal */
+  .brand,
+  .site-header.scrolled .brand {
+    flex-direction: row !important;
+    align-items: center;
+    gap: 10px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .brand-logo img,
+  .site-header.scrolled .brand-logo img {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 8px !important;
+  }
+
+  .brand-text,
+  .site-header.scrolled .brand-text {
+    font-size: 1.1rem !important;
+  }
+
+  .nav,
+  .site-header.scrolled .nav {
+    margin-bottom: 0 !important;
+  }
+
+  /* Mostrar hamburguesa */
+  .nav-toggle {
+    display: flex;
+  }
+
+  /* Nav-list como dropdown vertical */
+  .nav-list,
+  .site-header.scrolled .nav-list {
+    display: none !important;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    padding: 16px 24px 24px !important;
+    background: rgba(10, 13, 11, 0.68) !important;
+    backdrop-filter: blur(28px) !important;
+    -webkit-backdrop-filter: blur(28px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+  }
+
+  .nav-list.open {
+    display: flex !important;
+  }
+
+  .nav-list li {
+    width: 100%;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .nav-list li:last-child {
+    border-bottom: none;
+  }
+  .nav-list a {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.75) !important;
+  }
+  .nav-list a:hover {
+    color: #fff !important;
+  }
+
+  /* Botón Contacto — texto oscuro legible sobre verde */
+  .nav-list a.btn {
+    color: #0a0d0b !important;
+    font-weight: 600;
+  }
+}
