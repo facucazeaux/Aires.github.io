@@ -1,0 +1,109 @@
+.producto-page {
+  padding-bottom: 80px;
+}
+.producto-loading {
+  padding: 120px 0;
+  text-align: center;
+  color: var(--text-muted);
+}
+.producto-breadcrumb {
+  padding: 24px 0 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.producto-breadcrumb a {
+  color: var(--green-text);
+}
+.producto-breadcrumb a:hover { text-decoration: underline; }
+
+.producto-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+  padding-top: 24px;
+}
+.producto-media {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.producto-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 24px;
+}
+.producto-media-placeholder {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.producto-cat {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--green-text);
+  margin-bottom: 12px;
+}
+.producto-info h1 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.producto-modelo {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+.producto-medida {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 28px;
+  color: var(--text-primary);
+}
+.producto-specs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.producto-specs div {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+.producto-specs dt {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.producto-specs dd {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.producto-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .producto-grid { grid-template-columns: 1fr; gap: 24px; }
+  .producto-specs { grid-template-columns: 1fr; }
+}
