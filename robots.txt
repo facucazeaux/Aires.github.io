@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://facucazeaux.github.io/Aires.github.io/sitemap.xml
