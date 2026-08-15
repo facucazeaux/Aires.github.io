@@ -19,6 +19,16 @@
   font-size: 14px;
   color: var(--text-secondary);
 }
+.footer-nav {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+}
+.footer-nav a {
+  color: var(--text-muted);
+  transition: color var(--transition);
+}
+.footer-nav a:hover { color: var(--green-text); }
 .footer-copy {
   font-size: 13px;
   color: var(--text-muted);

@@ -1,0 +1,25 @@
+{
+  "name": "Aires Neumáticos",
+  "short_name": "Aires",
+  "description": "Neumáticos agrícolas — tractores, cosechadoras e implementos",
+  "start_url": "/Aires.github.io/",
+  "scope": "/Aires.github.io/",
+  "display": "standalone",
+  "background_color": "#0a0d0b",
+  "theme_color": "#7eba3a",
+  "lang": "es-AR",
+  "icons": [
+    {
+      "src": "/Aires.github.io/img-neumaticos/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Aires.github.io/img-neumaticos/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

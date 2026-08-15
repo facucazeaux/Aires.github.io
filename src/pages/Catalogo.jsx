@@ -1,21 +1,49 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../supabase";
+import { fetchCategorias } from "../lib/categorias";
+import { resolveImageUrl } from "../lib/storage";
+import { productPath } from "../lib/slug";
+import ErrorState from "../components/ErrorState";
 import { WHATSAPP, BASE } from "../data/productos";
 import "./Catalogo.css";
-
-const CATEGORIAS = ["Todas", "Tractor", "Cosechadora", "Implemento"];
 
 const BADGE_COLORS = {
   Tractor: "badge-tractor",
   Cosechadora: "badge-cosechadora",
   Implemento: "badge-implemento",
+  Moto: "badge-moto",
+  moto: "badge-moto",
 };
 
+// ── FUNCIÓN DE AYUDA: NORMALIZA Y LIMPIA CUALQUIER FORMATO DE CATEGORÍA ──
+function getCategoriasArray(catData) {
+  if (!catData) return [];
+
+  if (Array.isArray(catData)) {
+    return catData.map((c) => String(c).replace(/[\[\]"']/g, "").trim());
+  }
+
+  if (typeof catData === "string") {
+    try {
+      const parsed = JSON.parse(catData);
+      if (Array.isArray(parsed)) {
+        return parsed.map((c) => String(c).replace(/[\[\]"']/g, "").trim());
+      }
+    } catch {
+      // Si no es un JSON válido, seguimos a limpiar el string
+    }
+    return [catData.replace(/[\[\]"']/g, "").trim()];
+  }
+
+  return [String(catData)];
+}
+
 function buildWspUrl(p) {
+  const cats = getCategoriasArray(p.categoria).join(", ");
   const msg =
     "Hola, quisiera consultar por este neumático:\n\n" +
-    `Categoría: ${p.categoria}\n` +
+    `Categoría: ${cats}\n` +
     `Marca/Modelo: ${p.marca} ${p.modelo}\n` +
     `Medida: ${p.medida}\n` +
     `Construcción: ${p.construccion}\n` +
@@ -27,9 +55,10 @@ function buildWspUrl(p) {
 
 function ProductCard({ p, index }) {
   const [expanded, setExpanded] = useState(false);
-  const imgSrc = p.imagen
-    ? (p.imagen.startsWith("http") ? p.imagen : `${BASE}${p.imagen}`)
-    : "";
+  const imgSrc = resolveImageUrl(p.imagen, BASE);
+
+  // Lista limpia de categorías
+  const categoriasLista = getCategoriasArray(p.categoria);
 
   return (
     <article className="prod-card fade-up" style={{ animationDelay: `${index * 0.07}s` }}>
@@ -46,7 +75,15 @@ function ProductCard({ p, index }) {
             <span>Sin imagen</span>
           </div>
         )}
-        <span className={`prod-badge ${BADGE_COLORS[p.categoria] || ""}`}>{p.categoria}</span>
+
+        {/* Muestra las etiquetas limpias sobre la imagen */}
+        <div style={{ position: "absolute", top: "12px", left: "12px", display: "flex", gap: "6px", flexWrap: "wrap", zIndex: 2 }}>
+          {categoriasLista.map((cat, i) => (
+            <span key={i} className={`prod-badge ${BADGE_COLORS[cat] || "badge-default"}`}>
+              {cat}
+            </span>
+          ))}
+        </div>
       </div>
 
       <div className="prod-body">
@@ -83,6 +120,7 @@ function ProductCard({ p, index }) {
         )}
 
         <div className="prod-actions">
+          <Link className="btn btn-ghost" to={productPath(p)}>Ver ficha</Link>
           <a className="btn" href={buildWspUrl(p)} target="_blank" rel="noopener noreferrer">
             Consultar
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -100,41 +138,76 @@ function ProductCard({ p, index }) {
 }
 
 export default function Catalogo() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { categoria: categoriaParam } = useParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [query, setQuery] = useState("");
-  const [categoria, setCategoria] = useState(searchParams.get("categoria") || "Todas");
+  const [categoria, setCategoria] = useState("Todas");
   const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const filtros = useMemo(() => ["Todas", ...categorias.map((c) => c.nombre)], [categorias]);
+
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    const [prodRes, cats] = await Promise.all([
+      supabase.from("productos").select("*").order("id"),
+      fetchCategorias().catch(() => []),
+    ]);
+    if (prodRes.error) {
+      setError(prodRes.error.message);
+      setProductos([]);
+    } else {
+      setProductos(prodRes.data || []);
+    }
+    setCategorias(cats);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
 
   useEffect(() => {
-    const fetchProductos = async () => {
-      setLoading(true);
-      const { data } = await supabase.from("productos").select("*").order("id");
-      setProductos(data || []);
-      setLoading(false);
-    };
-    fetchProductos();
-  }, []);
+    const legacy = searchParams.get("categoria");
+    const q = searchParams.get("q");
+    if (q) setQuery(q);
+    if (categoriaParam) {
+      setCategoria(decodeURIComponent(categoriaParam));
+    } else if (legacy) {
+      setCategoria(legacy);
+      navigate(`/catalogo/${encodeURIComponent(legacy)}`, { replace: true });
+    } else {
+      setCategoria("Todas");
+    }
+  }, [categoriaParam, searchParams, navigate]);
 
-  useEffect(() => {
-    const cat = searchParams.get("categoria");
-    if (cat) setCategoria(cat);
-  }, [searchParams]);
-
+  // ── FILTRADO FLEXIBLE Y SEGURO ──
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
     return productos.filter((p) => {
-      const okCat = categoria === "Todas" || p.categoria === categoria;
-      const okQ = !q || [p.marca, p.modelo, p.medida, p.construccion, p.aplicacion, p.categoria]
-        .join(" ").toLowerCase().includes(q);
+      const pCats = getCategoriasArray(p.categoria);
+
+      const okCat =
+        categoria === "Todas" ||
+        pCats.some((c) => c.toLowerCase() === categoria.toLowerCase());
+
+      const okQ =
+        !q ||
+        [p.marca, p.modelo, p.medida, p.construccion, p.aplicacion, ...pCats]
+          .join(" ")
+          .toLowerCase()
+          .includes(q);
+
       return okCat && okQ;
     });
   }, [query, categoria, productos]);
 
   const setcat = (c) => {
     setCategoria(c);
-    if (c !== "Todas") setSearchParams({ categoria: c });
-    else setSearchParams({});
+    if (c !== "Todas") navigate(`/catalogo/${encodeURIComponent(c)}`);
+    else navigate("/catalogo");
   };
 
   return (
@@ -162,7 +235,7 @@ export default function Catalogo() {
             />
           </div>
           <div className="cat-filters">
-            {CATEGORIAS.map((c) => (
+            {filtros.map((c) => (
               <button
                 key={c}
                 className={`filter-btn${categoria === c ? " active" : ""}`}
@@ -179,6 +252,12 @@ export default function Catalogo() {
           <div style={{ padding: "80px", textAlign: "center", color: "var(--text-muted)" }}>
             Cargando productos...
           </div>
+        ) : error ? (
+          <ErrorState
+            title="No pudimos cargar el catálogo"
+            message="Verificá tu conexión e intentá de nuevo. Si el problema persiste, escribinos por WhatsApp."
+            onRetry={load}
+          />
         ) : (
           <>
             <div className="results-meta">

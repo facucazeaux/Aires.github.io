@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "../supabase";
 import { WHATSAPP, BASE } from "../data/productos";
+import { fetchCategorias, categoriaToHomeItem } from "../lib/categorias";
 import { INTRO_VIDEO_POSTER, INTRO_VIDEO_SOURCES } from "../data/introVideo";
 import "./Home.css";
 
-/** Reemplazá este array por datos de Supabase u otra API cuando esté listo. */
-export const CATEGORIAS_HOME = [
+/** Fallback si Supabase aún no tiene categorías cargadas. */
+const CATEGORIAS_FALLBACK = [
   {
     title: "Tractores",
     desc: "R1, R1W, radial y diagonal para máxima tracción y durabilidad en todo tipo de suelo.",
@@ -59,26 +61,43 @@ function Counter({ to, suffix = "" }) {
   return <span ref={ref}>{val}{suffix}</span>;
 }
 
-/* ── Contact form → WhatsApp ── */
+/* ── Contact form → Supabase + WhatsApp ── */
 function ContactForm() {
   const [fields, setFields] = useState({ nombre: "", email: "", telefono: "", mensaje: "" });
   const [status, setStatus] = useState(null);
+  const [sending, setSending] = useState(false);
 
   const set = (k) => (e) => setFields({ ...fields, [k]: e.target.value });
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (!fields.nombre || !fields.email) {
       setStatus({ type: "err", msg: "Completá Nombre y Email para continuar." });
       return;
     }
+    setSending(true);
+    setStatus(null);
+
+    const { error } = await supabase.from("consultas").insert([{
+      nombre: fields.nombre.trim(),
+      email: fields.email.trim(),
+      telefono: fields.telefono.trim(),
+      mensaje: fields.mensaje.trim(),
+    }]);
+
     const text =
       "Hola, les escribo desde la web de Aires Neumáticos.\n\n" +
       `Nombre: ${fields.nombre}\nEmail: ${fields.email}\n` +
       `Teléfono: ${fields.telefono || "-"}\n\nMensaje:\n${fields.mensaje || "-"}`;
     window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`, "_blank");
-    setStatus({ type: "ok", msg: "¡Abrimos WhatsApp para que enviés tu consulta!" });
-    setFields({ nombre: "", email: "", telefono: "", mensaje: "" });
+
+    if (error) {
+      setStatus({ type: "err", msg: "Guardamos tu consulta en WhatsApp, pero hubo un error al registrarla. Igual te vamos a responder." });
+    } else {
+      setStatus({ type: "ok", msg: "¡Consulta registrada! Abrimos WhatsApp para que enviés tu mensaje." });
+      setFields({ nombre: "", email: "", telefono: "", mensaje: "" });
+    }
+    setSending(false);
   };
 
   return (
@@ -101,8 +120,8 @@ function ContactForm() {
         <label htmlFor="mensaje">Mensaje</label>
         <textarea id="mensaje" rows={5} placeholder="Contanos el equipo, medida y aplicación" value={fields.mensaje} onChange={set("mensaje")} />
       </div>
-      <button className="btn" type="submit">
-        Enviar por WhatsApp
+      <button className="btn" type="submit" disabled={sending}>
+        {sending ? "Enviando..." : "Enviar consulta"}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
           <path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.564 4.14 1.544 5.875L0 24l6.304-1.513A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.375l-.36-.213-3.73.895.937-3.619-.234-.372A9.818 9.818 0 1112 21.818z"/>
@@ -218,7 +237,7 @@ function CategoryCarousel({ items, catIn }) {
               <div className="cat-badge">{tag}</div>
               <h3>{title}</h3>
               <p>{desc}</p>
-              <Link className="cat-link" to={`/catalogo?categoria=${encodeURIComponent(tag)}`}>
+              <Link className="cat-link" to={`/catalogo/${encodeURIComponent(tag)}`}>
                 Ver productos →
               </Link>
             </div>
@@ -247,6 +266,17 @@ export default function Home() {
   const [srvRef, srvIn] = useInView();
   const [statRef, statIn] = useInView();
   const [conRef, conIn] = useInView();
+  const [categoriasHome, setCategoriasHome] = useState(CATEGORIAS_FALLBACK);
+
+  useEffect(() => {
+    fetchCategorias()
+      .then((cats) => {
+        if (cats.length > 0) {
+          setCategoriasHome(cats.map(c => categoriaToHomeItem(c, BASE)));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <main>
@@ -360,7 +390,7 @@ export default function Home() {
         <div className="container">
           <span className="section-label">Productos</span>
           <h2 className="section-title">Categorías disponibles</h2>
-          <CategoryCarousel items={CATEGORIAS_HOME} catIn={catIn} />
+          <CategoryCarousel items={categoriasHome} catIn={catIn} />
         </div>
       </section>
 
