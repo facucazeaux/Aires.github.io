@@ -660,7 +660,7 @@ export default function Admin() {
         {/* PESTAÑA PRODUCTOS */}
         {activeTab === 'productos' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div className="form-card">
+            <div className="form-card form-card-light">
               <h3>{editingProductId ? 'Editar Neumático' : 'Agregar Nuevo Neumático'}</h3>
               {statusMsg.text && (
                 <div className={`form-status ${statusMsg.type}`}>{statusMsg.text}</div>
@@ -745,16 +745,6 @@ export default function Admin() {
                       onChange={(e) => setProdForm({ ...prodForm, aplicacion: e.target.value })}
                     />
                   </div>
-                  <div className="field">
-                    <label>Código / SKU</label>
-                    <input
-                      type="text"
-                      placeholder="Ej: MCH-7107038"
-                      value={prodForm.codigo}
-                      onChange={(e) => setProdForm({ ...prodForm, codigo: e.target.value })}
-                    />
-                  </div>
-
                   <div className="field field-full">
                     <label>Imagen del Producto</label>
                     <input 

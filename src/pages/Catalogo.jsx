@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../supabase";
-import { fetchCategorias } from "../lib/categorias";
+import { fetchCategorias, getCategoriasArray, formatAplicacion } from "../lib/categorias";
 import { resolveImageUrl } from "../lib/storage";
 import { productPath } from "../lib/slug";
 import ErrorState from "../components/ErrorState";
@@ -16,29 +16,6 @@ const BADGE_COLORS = {
   moto: "badge-moto",
 };
 
-// ── FUNCIÓN DE AYUDA: NORMALIZA Y LIMPIA CUALQUIER FORMATO DE CATEGORÍA ──
-function getCategoriasArray(catData) {
-  if (!catData) return [];
-
-  if (Array.isArray(catData)) {
-    return catData.map((c) => String(c).replace(/[\[\]"']/g, "").trim());
-  }
-
-  if (typeof catData === "string") {
-    try {
-      const parsed = JSON.parse(catData);
-      if (Array.isArray(parsed)) {
-        return parsed.map((c) => String(c).replace(/[\[\]"']/g, "").trim());
-      }
-    } catch {
-      // Si no es un JSON válido, seguimos a limpiar el string
-    }
-    return [catData.replace(/[\[\]"']/g, "").trim()];
-  }
-
-  return [String(catData)];
-}
-
 function buildWspUrl(p) {
   const cats = getCategoriasArray(p.categoria).join(", ");
   const msg =
@@ -47,7 +24,7 @@ function buildWspUrl(p) {
     `Marca/Modelo: ${p.marca} ${p.modelo}\n` +
     `Medida: ${p.medida}\n` +
     `Construcción: ${p.construccion}\n` +
-    `Aplicación: ${p.aplicacion}\n` +
+    `Aplicación: ${formatAplicacion(p.aplicacion)}\n` +
     `Código: ${p.codigo || p.id}\n\n` +
     "¿Me pueden pasar precio y disponibilidad?";
   return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
@@ -97,7 +74,7 @@ function ProductCard({ p, index }) {
           {p.construccion}
         </p>
         <ul className="prod-specs">
-          <li><span>Aplicación</span><b>{p.aplicacion}</b></li>
+          <li><span>Aplicación</span><b>{formatAplicacion(p.aplicacion)}</b></li>
           <li><span>Código</span><b>{p.codigo || p.id}</b></li>
         </ul>
 

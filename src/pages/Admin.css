@@ -568,3 +568,130 @@
 .btn-secondary-pro:hover {
   background: var(--bg-hover);
 }
+/* ── FORM-CARD "PRODUCTOS": fondo blanco (pedido puntual) ── */
+.form-card-light {
+  background: #ffffff;
+  border: 1px solid #e2e4e8;
+}
+
+.form-card-light h3 {
+  color: #14161a;
+}
+
+.form-card-light .field label {
+  color: #6b7280;
+}
+
+.form-card-light .field input[type='text'],
+.form-card-light .field input[type='file'] {
+  background: #f5f6f8;
+  border: 1px solid #d7dae0;
+  color: #14161a;
+}
+
+.form-card-light .field input[type='text']::placeholder {
+  color: #9aa0aa;
+}
+
+.form-card-light .field input[type='text']:focus {
+  border-color: var(--accent-blue);
+}
+
+.form-card-light .categories-chips-grid {
+  background: #f5f6f8;
+  border: 1px solid #d7dae0;
+}
+
+.form-card-light .chip-item {
+  background: #ffffff;
+  border: 1px solid #d7dae0;
+  color: #14161a;
+}
+
+.form-card-light .chip-item.active {
+  background: rgba(58, 134, 255, 0.12);
+  border-color: var(--accent-blue);
+  color: #14161a;
+}
+
+.form-card-light .chip-check {
+  color: #6b7280;
+}
+
+.form-card-light span[style*="color: var(--text-muted)"] {
+  color: #6b7280 !important;
+}
+
+
+
+/* ==========================================
+   ADAPTACIÓN RESPONSIVA (MOBILE)
+   ========================================== */
+
+@media (max-width: 768px) {
+  /* Contenedores generales */
+  .admin-main {
+    padding: 0 12px;
+    margin-top: 16px;
+  }
+
+  .form-card {
+    padding: 16px;
+  }
+
+  /* Formulario: pasa de 2 columnas a 1 sola */
+  .prod-form .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .field-full {
+    grid-column: span 1;
+  }
+
+  /* Pestañas: scroll horizontal suave si no entran */
+  .admin-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-tab {
+    padding: 8px 12px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  /* Header compacto */
+  .admin-header {
+    padding: 12px 16px;
+  }
+
+  .admin-header-inner {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .admin-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Modal responsive */
+  .contact-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-footer-pro {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .modal-footer-pro .btn-primary-pro,
+  .modal-footer-pro .btn-secondary-pro {
+    text-align: center;
+    justify-content: center;
+  }
+}

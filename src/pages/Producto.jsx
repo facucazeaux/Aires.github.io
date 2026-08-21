@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { supabase } from "../supabase";
 import { WHATSAPP, BASE } from "../data/productos";
 import { resolveImageUrl } from "../lib/storage";
+import { formatCategoria, formatAplicacion, getCategoriasArray } from "../lib/categorias";
 import SEO from "../components/SEO";
 import ErrorState from "../components/ErrorState";
 import { absoluteUrl } from "../config";
@@ -11,11 +12,11 @@ import "./Producto.css";
 function buildWspUrl(p) {
   const msg =
     "Hola, quisiera consultar por este neumático:\n\n" +
-    `Categoría: ${p.categoria}\n` +
+    `Categoría: ${formatCategoria(p.categoria)}\n` +
     `Marca/Modelo: ${p.marca} ${p.modelo}\n` +
     `Medida: ${p.medida}\n` +
     `Construcción: ${p.construccion}\n` +
-    `Aplicación: ${p.aplicacion || "-"}\n` +
+    `Aplicación: ${formatAplicacion(p.aplicacion) || "-"}\n` +
     `Código: ${p.codigo || p.id}\n\n` +
     "¿Me pueden pasar precio y disponibilidad?";
   return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
@@ -70,11 +71,15 @@ export default function Producto() {
   }
 
   const imgSrc = resolveImageUrl(producto.imagen, BASE);
+  const categoriasArray = getCategoriasArray(producto.categoria);
+  const categoriaTexto = formatCategoria(producto.categoria);
+  const categoriaPrincipal = categoriasArray[0] || categoriaTexto;
+  const aplicacionTexto = formatAplicacion(producto.aplicacion);
   const specs = [
     ["Medida", producto.medida],
     ["Construcción", producto.construccion],
-    ["Categoría", producto.categoria],
-    ["Aplicación", producto.aplicacion],
+    ["Categoría", categoriaTexto],
+    ["Aplicación", aplicacionTexto],
     ["Índice de carga", producto.indiceCarga],
     ["Velocidad", producto.velocidad],
     ["Prof. de taco", producto.profundidad],
@@ -109,7 +114,7 @@ export default function Producto() {
         </div>
 
         <div className="producto-info">
-          <span className="producto-cat">{producto.categoria}</span>
+          <span className="producto-cat">{categoriaTexto}</span>
           <h1>{producto.marca}</h1>
           <p className="producto-modelo">{producto.modelo}</p>
           <p className="producto-medida">{producto.medida} · {producto.construccion}</p>
@@ -127,8 +132,8 @@ export default function Producto() {
             <a className="btn" href={buildWspUrl(producto)} target="_blank" rel="noopener noreferrer">
               Consultar por WhatsApp
             </a>
-            <Link className="btn btn-outline" to={`/catalogo/${encodeURIComponent(producto.categoria)}`}>
-              Ver más {producto.categoria}
+            <Link className="btn btn-outline" to={`/catalogo/${encodeURIComponent(categoriaPrincipal)}`}>
+              Ver más {categoriaPrincipal}
             </Link>
           </div>
         </div>
