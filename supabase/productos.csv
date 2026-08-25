@@ -1,0 +1,7 @@
+codigo,categoria,marca,modelo,medida,construccion,aplicacion,indiceCarga,velocidad,profundidad,imagen
+TR-01,Tractor,Galaxy,Ag Radial R1-W,18.4R34,Radial,Tracción / Campo,161A8,A8,38 mm,/Aires.github.io/img-neumaticos/Ag-Radial.jpg
+TR-02,Tractor,BKT,Agrimax Force,600/70R30,Radial,Tracción / Alta potencia,152D,A8,42 mm,/Aires.github.io/img-neumaticos/Ag-Radial.jpg
+CO-01,Cosechadora,BKT,Agrimax Proharvest,650/75R32,Radial,Baja compactación,172A8,A8,40 mm,/Aires.github.io/img-neumaticos/Agrimax_PRO_HARVEST.jpg
+CO-02,Cosechadora,Firestone,Maxi Traction,800/70R38,Radial,Cosecha en húmedo,187A8,A8,44 mm,/Aires.github.io/img-neumaticos/Agrimax_PRO_HARVEST.jpg
+IM-01,Implemento,Titan,Implement R-3,11L-15,Diagonal,Carros / Sembradoras,124A8,A8,18 mm,
+IM-02,Implemento,Alliance,Farm Pro 324,385/65R22.5,Radial,Pulverizadoras / Tolvas,160D,A8,20 mm,
