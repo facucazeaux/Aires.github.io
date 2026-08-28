@@ -28,6 +28,18 @@ const CATEGORIAS_FALLBACK = [
   },
 ];
 
+/* ── MARCAS CON LAS QUE TRABAJAMOS ── */
+const MARCAS = [
+  { name: "Kenda", img: `${BASE}/img-neumaticos/KENDA.jpeg` },
+  { name: "MRL", img: `${BASE}/img-neumaticos/MRL.jpeg` },
+  { name: "Titan", img: `${BASE}/img-neumaticos/TITAN.jpeg` },
+  { name: "Tortuga", img: `${BASE}/img-neumaticos/TORTUGA.jpeg` },
+  { name: "Unimax", img: `${BASE}/img-neumaticos/UNIMAX.jpeg` },
+  { name: "Alliance", img: `${BASE}/img-neumaticos/ALLIANCE.jpeg` },
+  { name: "BKT", img: `${BASE}/img-neumaticos/BKT.jpeg` },
+  { name: "Forerunner", img: `${BASE}/img-neumaticos/FORERUNNER.jpeg` },
+];
+
 /* ── Intersection Observer hook ── */
 function useInView(threshold = 0.15) {
   const ref = useRef(null);
@@ -66,7 +78,7 @@ function ContactForm() {
   const [fields, setFields] = useState({ nombre: "", email: "", telefono: "", mensaje: "" });
   const [status, setStatus] = useState(null);
   const [sending, setSending] = useState(false);
-  const [website, setWebsite] = useState(""); // honeypot anti-spam: invisible para personas, los bots lo completan
+  const [website, setWebsite] = useState("");
   const [formLoadedAt] = useState(() => Date.now());
 
   const set = (k) => (e) => setFields({ ...fields, [k]: e.target.value });
@@ -74,15 +86,12 @@ function ContactForm() {
   const submit = async (e) => {
     e.preventDefault();
 
-    // Honeypot: si este campo (oculto para humanos) viene con valor, es un bot.
     if (website.trim() !== "") {
       setStatus({ type: "ok", msg: "¡Consulta registrada! Abrimos WhatsApp para que enviés tu mensaje." });
       setFields({ nombre: "", email: "", telefono: "", mensaje: "" });
       return;
     }
 
-    // Freno anti-bot básico: un envío en menos de 2s de cargada la página es casi
-    // siempre automatizado (un humano tarda más en completar el formulario).
     if (Date.now() - formLoadedAt < 2000) {
       setStatus({ type: "err", msg: "Completá el formulario antes de enviarlo." });
       return;
@@ -119,7 +128,6 @@ function ContactForm() {
 
   return (
     <form className="contact-form" onSubmit={submit} noValidate>
-      {/* Honeypot anti-spam: oculto visualmente y del lector de pantalla; los bots lo completan igual */}
       <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", overflow: "hidden" }}>
         <label htmlFor="website">No completar</label>
         <input
@@ -164,7 +172,7 @@ function ContactForm() {
   );
 }
 
-/* ── Video intro (estilo pantalla completa, tipo BKT) ── */
+/* ── Video intro ── */
 function VideoIntro() {
   const videoRef = useRef(null);
   const [paused, setPaused] = useState(false);
@@ -200,7 +208,7 @@ function VideoIntro() {
       <div className="video-intro__content">
         <p className="video-intro__eyebrow">Neumáticos agrícolas · Argentina</p>
         <h2 className="video-intro__title">
-        El neumático ideal para que tu trabajo rinda el máximo 
+          El neumático ideal para que tu trabajo rinda el máximo
         </h2>
       </div>
       <button
@@ -223,6 +231,30 @@ function VideoIntro() {
   );
 }
 
+/* ── Carrusel Infinito de Marcas ── */
+function BrandsCarousel() {
+  const doubleBrands = [...MARCAS, ...MARCAS];
+
+  return (
+    <section className="brands-section">
+      <div className="container brands-header">
+        <span className="section-label">Marcas</span>
+        <h2 className="section-title">Marcas con las que trabajamos</h2>
+      </div>
+      <div className="brands-ticker">
+        <div className="brands-track">
+          {doubleBrands.map((marca, i) => (
+            <div className="brand-card" key={`${marca.name}-${i}`}>
+              <img src={marca.img} alt={marca.name} loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Categorías Carousel ── */
 function CategoryCarousel({ items, catIn }) {
   const scrollRef = useRef(null);
 
@@ -294,6 +326,7 @@ export default function Home() {
   const [nosRef, nosIn] = useInView();
   const [catRef, catIn] = useInView();
   const [srvRef, srvIn] = useInView();
+  const [mapRef, mapIn] = useInView();
   const [statRef, statIn] = useInView();
   const [conRef, conIn] = useInView();
   const [categoriasHome, setCategoriasHome] = useState(CATEGORIAS_FALLBACK);
@@ -312,7 +345,7 @@ export default function Home() {
     <main>
       <VideoIntro />
 
-      {/* ── HERO (sección original: copy + foto del local) ── */}
+      {/* ── HERO ── */}
       <section className="hero" ref={heroRef}>
         <div className="hero-bg-grid" aria-hidden="true" />
         <div className="hero-glow" aria-hidden="true" />
@@ -361,7 +394,7 @@ export default function Home() {
       <section className="stats-strip" ref={statRef}>
         <div className="container stats-inner">
           {[
-            { label: "Años en el mercado", value: 15, suffix: "+" },
+            { label: "Años en el mercado", value: 20, suffix: "+" },
             { label: "Marcas disponibles", value: 12, suffix: "+" },
             { label: "Clientes activos", value: 400, suffix: "+" },
             { label: "Envíos por año", value: 1200, suffix: "+" },
@@ -415,6 +448,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── MARCAS ── */}
+      <BrandsCarousel />
+
       {/* ── CATEGORIAS ── */}
       <section id="categorias" className="section cat-section" ref={catRef}>
         <div className="container">
@@ -448,6 +484,38 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── UBICACIÓN ── */}
+      <section id="ubicacion" className="section map-section" ref={mapRef}>
+        <div className="container">
+          <div className={mapIn ? "fade-up" : ""}>
+            <span className="section-label">Ubicación</span>
+            <h2 className="section-title">Nuestra Ubicación</h2>
+            <p style={{ color: "var(--text-secondary)", maxWidth: "600px", margin: "0 auto 16px" }}>
+              Visítanos en nuestra sucursal para recibir asesoramiento personalizado sobre la compra y cambio de tus neumáticos.
+            </p>
+            <div className="map-info">
+              <span className="map-info-item">
+                📍 <strong>Dirección:</strong> Av. Almafuerte 125, Tres Arroyos
+              </span>
+              <span className="map-info-item">
+                🕐 <strong>Horarios:</strong> Lun a Vie: 8:30 a 18:00 hs
+              </span>
+              <span className="map-info-item">
+                📞 <strong>Teléfono:</strong> +54 9 2983 60-3968
+              </span>
+            </div>
+          </div>
+          <div className={`map-wrapper${mapIn ? " fade-up fade-up-delay-2" : ""}`}>
+            <iframe
+              title="Ubicación de Aires Neumáticos"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3133.275133379207!2d-60.2796120235334!3d-38.37731767183861!2m3!1f0!0f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9592f2c8d2d6f78d%3A0x1b4b6ee980b1e42a!2sAv.%20Almafuerte%20125%2C%20B7500%20Tres%20Arroyos%2C%20Provincia%20de%20Buenos%20Aires!5e0!3m2!1ses!2sar!4v1700000000000!5m2!1ses!2sar"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* ── CONTACTO ── */}
       <section id="contacto" className="section contact-section" ref={conRef}>
         <div className="container contact-inner">
@@ -467,15 +535,35 @@ export default function Home() {
                   <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer">
                     +54 9 2983 60-3968
                   </a>
+
+                  <span className="contact-label">WhatsApp</span>
+                  <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer">
+                    +54 9 2983 66-4193
+                  </a>
+
+
+
+                   <span className="contact-label">TELÉFONO FIJO</span>
+                  <a href="tel:+542983426110" target="_blank" rel="noopener noreferrer">
+                    +54 2983 42-6110
+                  </a>
+
                 </div>
               </li>
               <li>
                 <span className="contact-icon">✉️</span>
                 <div>
                   <span className="contact-label">Email</span>
-                  <a href="mailto:fcazeaux@hotmail.com">
-                    contacto@airesneumaticos.com
+                  <a href="mailto:fcazeaux8@yahoo.com.ar">
+                    fcazeaux8@yahoo.com.ar
                   </a>
+
+
+                   <span className="contact-label">Email</span>
+                  <a href="mailto:pepoulsen58@gmail.com">
+                    pepoulsen58@gmail.com
+                  </a>
+
                 </div>
               </li>
               <li>

@@ -515,3 +515,176 @@
   .cat-carousel { gap: 0; }
   .cat-carousel__scroll { padding-bottom: 16px; }
 }
+
+
+/* ── CARRUSEL INFINITO DE MARCAS ── */
+.brands-section {
+  padding: 60px 0;
+  overflow: hidden;
+}
+
+.brands-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.brands-ticker {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 6px 0; /* Margen vertical para que el hover no toque el borde */
+  /* Mascara con degradado sutil a los lados para suavizar la entrada/salida */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+}
+
+.brands-track {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  animation: scrollBrands 25s linear infinite;
+}
+
+/* Pausa la animación al pasar el mouse encima */
+.brands-ticker:hover .brands-track {
+  animation-play-state: paused;
+}
+
+.brand-card {
+  width: 180px; /* Aumentamos el ancho */
+  height: 90px;  /* Aumentamos el alto */
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06); 
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px; /* Reducimos padding para dar más espacio a la imagen */
+  transition: border-color var(--transition), transform var(--transition), background var(--transition);
+}
+
+.brand-card:hover {
+  border-color: var(--green-dim);
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.brand-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.0); /* Escala los logos un 25% más grandes */
+  filter: brightness(1.6) contrast(1.1);
+  opacity: 0.9;
+  transition: filter var(--transition), opacity var(--transition), transform var(--transition);
+}
+
+.brand-card:hover img {
+  filter: brightness(2) contrast(1.2);
+  transform: scale(1.0); /* Efecto zoom suave al pasar el mouse */
+  opacity: 1;
+}
+
+/* Ajuste responsive para mobile */
+@media (max-width: 640px) {
+  .brand-card {
+    width: 140px;
+    height: 75px;
+    padding: 6px 10px;
+  }
+}
+
+@keyframes scrollBrands {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Ajustes Responsive para Mobile */
+@media (max-width: 640px) {
+  .brands-section {
+    padding: 40px 0;
+  }
+  .brand-card {
+    width: 120px;
+    height: 70px;
+    padding: 12px;
+  }
+  .brands-track {
+    gap: 12px;
+    animation-duration: 18s; /* Un poco más rápido en pantallas chicas */
+  }
+}
+
+
+/* ── UBICACIÓN ── */
+.map-section {
+  text-align: center;
+  background: var(--bg);
+}
+
+.map-info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px 32px;
+  margin-top: 24px;
+  margin-bottom: 36px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.map-info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.map-info-item strong {
+  color: var(--text-primary);
+}
+
+.map-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  height: 420px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.map-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  /* Dark mode sutil para integrar el mapa con la estética del sitio */
+  filter: opacity(0.9) contrast(1.05);
+}
+
+@media (max-width: 640px) {
+  .map-info {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+  .map-wrapper {
+    height: 300px;
+  }
+}
