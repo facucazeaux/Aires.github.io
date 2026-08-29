@@ -22,8 +22,7 @@ export default function Admin() {
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [loginLockedUntil, setLoginLockedUntil] = useState(0);
 
-  // Bloqueo temporal creciente tras varios intentos fallidos (defensa básica anti fuerza-bruta;
-  // el límite real y confiable lo aplica Supabase Auth del lado del servidor).
+  // Bloqueo temporal creciente tras varios intentos fallidos
   const registerFailedAttempt = () => {
     setLoginAttempts((prev) => {
       const next = prev + 1;
@@ -83,14 +82,18 @@ export default function Admin() {
     const checkAuth = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
-        if (currentSession && !isAdminUser(currentSession.user)) {
-          // Sesión válida pero sin rol admin: no mostramos el panel ni sus datos.
-          await supabase.auth.signOut();
-          setSession(null);
-          setLoginError('Esta cuenta no tiene permisos de administrador.');
+        if (currentSession) {
+          const isUserAdmin = await isAdminUser(currentSession.user);
+          if (!isUserAdmin) {
+            await supabase.auth.signOut();
+            setSession(null);
+            setLoginError('Esta cuenta no tiene permisos de administrador.');
+          } else {
+            setSession(currentSession);
+            loadData();
+          }
         } else {
-          setSession(currentSession);
-          if (currentSession) loadData();
+          setSession(null);
         }
       } catch (err) {
         console.error('Error al comprobar sesión:', err);
@@ -102,15 +105,18 @@ export default function Admin() {
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
-      if (currentSession && !isAdminUser(currentSession.user)) {
-        await supabase.auth.signOut();
-        setSession(null);
-        setLoginError('Esta cuenta no tiene permisos de administrador.');
-        return;
-      }
-      setSession(currentSession);
       if (currentSession) {
+        const isUserAdmin = await isAdminUser(currentSession.user);
+        if (!isUserAdmin) {
+          await supabase.auth.signOut();
+          setSession(null);
+          setLoginError('Esta cuenta no tiene permisos de administrador.');
+          return;
+        }
+        setSession(currentSession);
         loadData();
+      } else {
+        setSession(null);
       }
     });
 
@@ -124,7 +130,6 @@ export default function Admin() {
     e.preventDefault();
     setLoginError('');
 
-    // Freno básico anti fuerza-bruta del lado del cliente
     if (loginLockedUntil && Date.now() < loginLockedUntil) {
       const segsRestantes = Math.ceil((loginLockedUntil - Date.now()) / 1000);
       setLoginError(`Demasiados intentos. Probá de nuevo en ${segsRestantes}s.`);
@@ -141,7 +146,8 @@ export default function Admin() {
 
       if (error) throw error;
 
-      if (!isAdminUser(data.session?.user)) {
+      const isUserAdmin = await isAdminUser(data.session?.user);
+      if (!isUserAdmin) {
         await supabase.auth.signOut();
         setLoginError('Esta cuenta no tiene permisos de administrador.');
         setSession(null);
@@ -353,9 +359,6 @@ export default function Admin() {
         ? generateSlug(slugStr)
         : slugStr.toLowerCase().trim().replace(/[\s/]+/g, '-');
 
-      // Verificamos contra la base que el slug no esté en uso por OTRO producto;
-      // si ya existe, se agrega automáticamente -2, -3, etc. (evita el error de
-      // "duplicate key value violates unique constraint productos_slug_idx").
       const slug = await ensureUniqueSlug(supabase, baseSlug, editingProductId || null);
 
       const payload = { ...prodForm, imagen: imageUrl, slug };
@@ -400,7 +403,7 @@ export default function Admin() {
     }
   };
 
-  // ── GESTIÓN DE CATEGORÍAS (CON IMÁGENES) ──
+  // ── GESTIÓN DE CATEGORÍAS ──
   const handleCatFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -567,7 +570,7 @@ export default function Admin() {
     );
   }
 
-  // 3. VISTA DEL PANEL DE ADMINISTRACIÓN (Solo si está autenticado)
+  // 3. VISTA DEL PANEL DE ADMINISTRACIÓN
   const sinLeerCount = consultas.filter((c) => !c.leido).length;
 
   return (
