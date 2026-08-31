@@ -77,55 +77,84 @@ export default function Admin() {
   const [editCatImageFile, setEditCatImageFile] = useState(null);
   const [editCatImagePreview, setEditCatImagePreview] = useState('');
 
-  // ── VERIFICACIÓN DE AUTENTICACIÓN ──
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        if (currentSession) {
-          const isUserAdmin = await isAdminUser(currentSession.user);
-          if (!isUserAdmin) {
-            await supabase.auth.signOut();
-            setSession(null);
-            setLoginError('Esta cuenta no tiene permisos de administrador.');
-          } else {
-            setSession(currentSession);
-            loadData();
-          }
-        } else {
-          setSession(null);
-        }
-      } catch (err) {
-        console.error('Error al comprobar sesión:', err);
-      } finally {
-        setAuthChecking(false);
-      }
-    };
+// ── VERIFICACIÓN DE AUTENTICACIÓN ──
+useEffect(() => {
+  let isMounted = true;
 
-    checkAuth();
+  // 1. Límite de seguridad para la carga inicial
+  const timeoutId = setTimeout(() => {
+    if (isMounted) setAuthChecking(false);
+  }, 3000);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
+  // 2. Función de verificación al cargar la página
+  const checkAuth = async () => {
+    try {
+      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError) throw sessionError;
+
       if (currentSession) {
-        const isUserAdmin = await isAdminUser(currentSession.user);
+        const isUserAdmin = await isAdminUser(currentSession.user).catch(() => false);
+
         if (!isUserAdmin) {
           await supabase.auth.signOut();
           setSession(null);
           setLoginError('Esta cuenta no tiene permisos de administrador.');
-          return;
+        } else {
+          setSession(currentSession);
+          loadData();
         }
-        setSession(currentSession);
-        loadData();
       } else {
         setSession(null);
       }
-    });
+    } catch (err) {
+      console.error('Error al comprobar sesión:', err);
+      setSession(null);
+    } finally {
+      if (isMounted) setAuthChecking(false);
+      clearTimeout(timeoutId);
+    }
+  };
 
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, []);
+  checkAuth();
 
-  // ── PROCESO DE INICIO DE SESIÓN ──
+  // 3. Escuchador de eventos de autenticación.
+  // Solo reacciona a cierre de sesión y refrescos de sesión en segundo plano
+  // (otra pestaña, expiración/renovación de token). El flujo de LOGIN activo
+  // (signInWithPassword -> isAdminUser -> setSession) se maneja
+  // enteramente dentro de handleLogin, para no depender de que este evento
+  // se dispare (a veces no llega, o llega como INITIAL_SESSION en vez de
+  // SIGNED_IN, dejando la UI de "Ingresando..." colgada para siempre).
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
+    if (event === 'SIGNED_OUT' || !currentSession) {
+      setSession(null);
+      return;
+    }
+
+    if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+      // Solo actualizamos el objeto de sesión si ya había una sesión admin
+      // validada; no volvemos a chequear isAdminUser ni a recargar datos.
+      setSession((prev) => (prev ? currentSession : prev));
+    }
+    // SIGNED_IN se ignora deliberadamente acá: lo maneja handleLogin.
+  });
+
+  // 4. Limpieza al desmontar el componente
+  return () => {
+    isMounted = false;
+    clearTimeout(timeoutId);
+    subscription?.unsubscribe();
+  };
+}, []);
+
+
+
+  // ── PROCESO DE INICIO DE SESIÓN CORREGIDO ──
+  // Maneja todo el flujo acá mismo (login -> validar admin -> setSession),
+  // en vez de delegar en onAuthStateChange. Así evitamos la carrera donde
+  // el evento SIGNED_IN no llega (o llega antes/después de lo esperado) y
+  // la UI queda trabada en "Ingresando..." para siempre. El `finally`
+  // garantiza que loggingIn SIEMPRE se apague, pase lo que pase.
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError('');
@@ -146,27 +175,39 @@ export default function Admin() {
 
       if (error) throw error;
 
-      const isUserAdmin = await isAdminUser(data.session?.user);
+      const currentSession = data.session;
+      if (!currentSession) {
+        throw new Error('No se recibió una sesión válida.');
+      }
+
+      const isUserAdmin = await isAdminUser(currentSession.user).catch(() => false);
+
       if (!isUserAdmin) {
         await supabase.auth.signOut();
         setLoginError('Esta cuenta no tiene permisos de administrador.');
-        setSession(null);
         registerFailedAttempt();
         return;
       }
 
       setLoginAttempts(0);
-      setSession(data.session);
+      setLoginPassword('');
+      setSession(currentSession);
+      loadData();
+
     } catch (err) {
-      setLoginError(err.message === 'Invalid login credentials'
-        ? 'Credenciales inválidas. Verificá tu correo y contraseña.'
-        : (err.message || 'Credenciales inválidas. Verificá tu correo y contraseña.'));
+      console.error('Error en login:', err);
+      setLoginError(
+        err.message === 'Invalid login credentials'
+          ? 'Credenciales inválidas. Verificá tu correo y contraseña.'
+          : err.message || 'Error al iniciar sesión.'
+      );
       registerFailedAttempt();
     } finally {
       setLoggingIn(false);
     }
   };
-
+  
+  
   // ── LOGOUT / CERRAR SESIÓN ──
   const handleLogout = async () => {
     try {

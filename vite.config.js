@@ -15,5 +15,6 @@ export default defineConfig({
       },
     }),
   ],
-  base: '/',
+  // Detecta Vercel automáticamente; si no, usa el subdirectorio de GitHub Pages
+  base: process.env.VERCEL ? '/' : '/Aires.github.io/',
 })
