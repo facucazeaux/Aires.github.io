@@ -12,6 +12,8 @@ export default function SiteHead() {
 
   useEffect(() => {
     trackPageView(pathname);
+    // Cambia el título dinámico en cada cambio de ruta
+    document.title = "Aires Neumáticos | Tres Arroyos";
   }, [pathname]);
 
   return <RouteSEO pathname={pathname} />;
